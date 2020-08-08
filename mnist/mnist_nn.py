@@ -126,29 +126,6 @@ Return:
 '''
 #---------------------------------
 def back_prop(W, b, Z, A, s, x, y):
-    '''
-    let dW be the same shape as W
-    let db be the same shape as b
-    let dA be the same shape as A
-    let Y have all the desired labels for activation i in layer L
-    for l=L downto 1:
-        for i=0 upto n(l):
-            dz = sigmoid(Z[l, i]) * (1 - sigmoid(Z[l, i]))
-            if l == L:
-                dA[l, i] = 2 * (A[l, i] - Y[i])
-            else:
-                for k=0 upto n(l+1)-1:
-                    dA[l, i] += W[l+1, k, i] * sigmoid(Z[l+1, i]) * (1-sigmoid(Z[l+1, i])) * dA[l+1, k]
-            db[l, i] = dz * dA[l, i]
-            for j=0 upto m(l):
-                a = 0
-                if l == 1:
-                    a = x[j]
-                else:
-                    a = A[l-1, j]
-                dW[l, i, j] = a * dz * dA[l, i]
-    return dW, db
-    '''
     L = len(s) - 1 # theoretically the index of the last layer
     
     dW = []
