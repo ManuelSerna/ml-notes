@@ -1,0 +1,159 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{tabu}
+\usepackage{hyperref}
+
+\title{Neural Network Notes}
+\author{Manuel Serna-Aguilera}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+These are typeset notes cover the general architecture of a neural network model and applies it to the MNIST classification problem.
+
+%=================================
+\section*{Notation}
+%=================================
+%---------------------------------
+\subsection*{Weights}
+%---------------------------------
+$W$ is the set of weights connecting every activation in consecutive layers, where
+\begin{equation*}
+    W=\{W^{(1)}, W^{(2)}, \ldots, W^{(L)}\}
+\end{equation*}
+from layer 1 up to layer $L$, $(1 \leq l \leq L)$. Layer $l=0$ refers to the input data points as a column vector of shape ($n_0 \times 1$). Subsequent layers have $n_l$ activations ($n_L$ is the number of activations in the output layer, i.e. the number of classes to predict on). Each element in $W$ is a matrix. Each $W^{(l)}$ is a matrix with shape ($n_l \times n_{l-1}$), where
+\begin{equation*}
+    w_{jk}^{(l)} \in W^{(l)}
+\end{equation*}
+which can be read as ``to activation $j$ in layer $l$ from activation $k$ in layer $l-1$.'' The constraints of the indices are $1 \leq j <  n_l$, and $1 \leq k \leq n_{l-1}$. 
+
+%---------------------------------
+\subsection*{Biases}
+%---------------------------------
+$b$ is the set of biases for each activation, where
+\begin{equation*}
+    b = \{b^{(1)}, b^{(2)}, \ldots, b^{(L)}\}
+\end{equation*}
+from layer 1 up to $L$, each $b^{(l)}$ is a column vector with shape ($n_l \times$ 1). Each entry $b_j^{(l)} \in b^{(l)}$, where $1 \leq j \leq n_l$.
+
+\newpage
+
+%=================================
+\section*{Forward Propagation}
+%=================================
+%---------------------------------
+\subsection*{Weighted Sum}
+%---------------------------------
+The letter $z$ will denote the raw weighted sum. Formally,
+\begin{align*}
+    z &= \{z^{(1)}, z^{(2)}, \ldots, z^{(L)}\}\\
+    z_j^{(l)} &\in z^{(l)}\\
+    1 &\leq j \leq n_l
+\end{align*}
+where
+\begin{align*}
+    z_j^{(l)} &= w_{j0}^{(l)}a_j^{(l-1)} + w_{j1}^{(l)}a_j^{(l-1)} + \ldots + w_{jm}^{(l)}a_j^{(l-1)} + b_j^{(l)}\\
+    m &= n_{l-1}
+\end{align*}
+
+%---------------------------------
+\subsection*{Using Matrices and Vectors}
+%---------------------------------
+Forward propagation using vectors and matrices from layer $l=1$ up to $L$. Note that $a^{(0)}$ refers to the current model training input (which can also be referred to as $x$).
+\begin{align*}
+    z^{(l)} &= W^{(l)}a^{(l-1)}+b^{(l)}\\
+    a^{(l)} &= f^{(l)} \big( z^{(l)} \big)
+\end{align*}
+
+%---------------------------------
+\subsection*{Activation}
+%---------------------------------
+The letter $a$ refers to the output of the activation function $f^{(l)}$ that is applied to the weighted sums in layer $l$.
+\begin{align*}
+    a &= \{a^{(1)}, a^{(2)}, \ldots, a^{(L)}\}\\
+    a_j^{(l)} &\in a^{(l)}\\
+    1 &\leq j \leq n_l
+\end{align*}
+where
+\begin{align*}
+    a_j^{(l)} = f^{(l)}(z_j^{(l)})
+\end{align*}
+
+%---------------------------------
+\subsection*{Functions}
+%---------------------------------
+\subsubsection*{Sigmoid (for intermediate layers)}
+\begin{equation*}
+    \sigma(z^{(l)}) = \frac{1}{1+e^{z^{(l)}}}
+\end{equation*}
+\begin{equation*}
+    \sigma'(z^{(l)}) = \sigma(z^{(l)})\big( 1-\sigma(z^{(l)}) \big)
+\end{equation*}
+
+\subsubsection*{Softmax (for output layers)}
+\begin{equation*}
+    \text{softmax}\big(z^{(l)}_i \big) = \frac{e^{z_i}}{\Sigma_j^{n_l} e^{z_j}}, 1 \leq i \leq n_l, 1 \leq j \leq n_l
+\end{equation*}
+
+\noindent
+Note that when using softmax as $f^{(L)}$ and the cost/loss/error as cross-entropy, the combined derivative will simply be $a^{(L)} - y$, where $y$ is the true label for input $x$.
+
+\newpage
+
+%=================================
+\section*{Backpropagation}
+%=================================
+Given some cost function (e.g. cross-entropy), we want to find how the cost/loss/error is influenced by the change of a particular weight or bias. In particular, we want to find the below gradients
+
+\begin{align*}
+    \frac{\partial C}{\partial w^{(l)}_{jk}}  &= \frac{\partial z^{(l)}_j}{\partial w^{(l)}_{jk}} \cdot \frac{\partial a^{(l)}_j}{\partial z^{(l)}_j} \cdot \frac{\partial C}{\partial a^{(l)}_j} \\
+    &= a^{(l-1)}_k \cdot (f^{(l)}(z^{(l)}_j))' \cdot \frac{\partial C}{\partial a^{(l)}_j} \\
+    \\
+    \frac{\partial C}{\partial b^{(l)}_{j}}  &= \frac{\partial z^{(l)}_j}{\partial b^{(l)}_{j}} \cdot \frac{\partial a^{(l)}_j}{\partial z^{(l)}_j} \cdot \frac{\partial C}{\partial a^{(l)}_j} \\
+    &= 1 \cdot (f^{(l)}(z^{(l)}_j))' \cdot \frac{\partial C}{\partial a^{(l)}_j}
+\end{align*}
+where
+\begin{align*}
+    \frac{\partial C}{\partial w^{(l)}_{jk}} & \in \nabla C(W) \\
+    \frac{\partial C}{\partial b^{(l)}_{j}} & \in \nabla C(b)
+\end{align*}
+(the $\nabla C(W)$ and $\nabla C(b)$ terms are the gradients for the parameters) and
+\begin{equation*}
+\frac{\partial C}{\partial a^{(l)}_j} 
+    = \begin{cases}
+        \sum_{i=1}^{n_{l+1}} \big( w^{(l+1)}_{ij} \cdot (f^{(l+1)}(z^{(l+1)}_i))' \cdot \frac{\partial C}{\partial a^{(l+1)}_i} \big) &\mbox{if } l \neq L \\
+        \text{derivative of cost function} &\mbox{if } l = L.
+    \end{cases}
+\end{equation*}
+
+\noindent
+Finally, update parameters as below (the ticks represent the new, updated, parameters) to minimize cost/loss/error. The $\lambda$ is the learning rate of the model.
+
+\begin{align*}
+    W' &= W - \lambda \nabla C(W)\\
+    b' &= b - \lambda \nabla C(b)
+\end{align*}
+
+\newpage
+%---------------------------------
+\subsection*{Using Vectors and Matrices}
+%---------------------------------
+Computing each individual gradient is inefficient, and modern libraries and various programming languages already do the matrix multiplication for the user. Below are the four equations needed to compute the gradients for each layer.
+
+\begin{align}
+    \delta^{(L)} &= \big(f^{(L)}(z^{(L)})\big)' \odot \frac{\partial C}{\partial a^{(L)}}\\
+    \delta^{(l)} &= \big(f^{(l)}(z^{(l)})\big)' \odot \big( (W^{(l+1)}) \delta^{(l+1)} \big)\\
+    \nabla C(W^{(l)}) &= \delta^{(l)} \big(a^{(l-1)}\big)^T \\
+    \nabla C(b^{(l)}) &= \delta^{(l)} 
+\end{align}
+Note that $L$ in the above equations specifically refers to the output layer. The term $a^{(0)}$ refers to the input $x$ of the model. The symbol $\odot$ represents the element-wise multiplication between vectors or matrices. Finally, update the gradients.
+
+\end{document}

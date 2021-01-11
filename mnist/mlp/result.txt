@@ -1,0 +1,41 @@
+NOTE: accuracy varies between 60s and 80s percent.
+==================================
+
+Training over 5 epochs. Learning rate=0.001.
+
+Epoch 1
+ Accuracy: 899/10000 = 8.99
+ Accuracy: 1791/10000 = 17.91
+ Accuracy: 2503/10000 = 25.03
+ Accuracy: 3474/10000 = 34.74
+ Accuracy: 4245/10000 = 42.449999999999996
+ Accuracy: 4867/10000 = 48.67
+Epoch 2
+ Accuracy: 5341/10000 = 53.410000000000004
+ Accuracy: 5594/10000 = 55.94
+ Accuracy: 5902/10000 = 59.019999999999996
+ Accuracy: 6112/10000 = 61.12
+ Accuracy: 6301/10000 = 63.01
+ Accuracy: 6459/10000 = 64.59
+Epoch 3
+ Accuracy: 6605/10000 = 66.05
+ Accuracy: 6701/10000 = 67.01
+ Accuracy: 6806/10000 = 68.06
+ Accuracy: 6957/10000 = 69.57
+ Accuracy: 7073/10000 = 70.73
+ Accuracy: 7151/10000 = 71.50999999999999
+Epoch 4
+ Accuracy: 7237/10000 = 72.37
+ Accuracy: 7276/10000 = 72.76
+ Accuracy: 7317/10000 = 73.17
+ Accuracy: 7436/10000 = 74.36
+ Accuracy: 7564/10000 = 75.64
+ Accuracy: 7680/10000 = 76.8
+Epoch 5
+ Accuracy: 7728/10000 = 77.28
+ Accuracy: 7800/10000 = 78.0
+ Accuracy: 7865/10000 = 78.64999999999999
+ Accuracy: 7941/10000 = 79.41
+ Accuracy: 7954/10000 = 79.54
+ Accuracy: 7993/10000 = 79.93
+ Accuracy: 8007/10000 = 80.07
