@@ -1,5 +1,5 @@
 #*********************************
-# Test custom LSTM
+# Test custom simple neural network (MLP)
 # Author: Manuel Serna-Aguilera
 #*********************************
 
