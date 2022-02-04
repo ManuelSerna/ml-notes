@@ -52,7 +52,7 @@ from layer 1 up to $L$, each $b^{(l)}$ is a column vector with shape ($n_l \time
 %---------------------------------
 \subsection*{Weighted Sum}
 %---------------------------------
-The letter $z$ will denote the raw weighted sum. Formally,
+The letter $z$ will denote the ``raw'' weighted sum. Formally,
 \begin{align*}
     z &= \{z^{(1)}, z^{(2)}, \ldots, z^{(L)}\}\\
     z_j^{(l)} &\in z^{(l)}\\
@@ -60,7 +60,7 @@ The letter $z$ will denote the raw weighted sum. Formally,
 \end{align*}
 where
 \begin{align*}
-    z_j^{(l)} &= w_{j0}^{(l)}a_j^{(l-1)} + w_{j1}^{(l)}a_j^{(l-1)} + \ldots + w_{jm}^{(l)}a_j^{(l-1)} + b_j^{(l)}\\
+    z_j^{(l)} &= w_{j0}^{(l)}a_0^{(l-1)} + w_{j1}^{(l)}a_1^{(l-1)} + \ldots + w_{jm}^{(l)}a_m^{(l-1)} + b_j^{(l)}\\
     m &= n_{l-1}
 \end{align*}
 
@@ -157,3 +157,4 @@ Computing each individual gradient is inefficient, and modern libraries and vari
 Note that $L$ in the above equations specifically refers to the output layer. The term $a^{(0)}$ refers to the input $x$ of the model. The symbol $\odot$ represents the element-wise multiplication between vectors or matrices. Finally, update the gradients.
 
 \end{document}
+
