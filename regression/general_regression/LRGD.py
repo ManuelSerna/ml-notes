@@ -65,7 +65,17 @@ class LRGD:
         
         return: validation error/loss (correctly predicted/total)
         '''
-        val_loss = 0.0
-        pred = self.net_input(X)
+        pred = self.net_input(X_val)
         diff = y_val - pred
         return (diff**2).mean()
+    
+    def print_errors(self, X_val, y_val):
+        ''' Print training and validation error
+        
+        param: X_val: validation data samples
+        param: y_val: validation ground truths
+        
+        return: NA
+        '''
+        print('(Avg) Training Error: {:.6f}'.format(np.mean(self.losses)))
+        print('Validation Error:     {:.6f}'.format(self.evaluate(X_val, y_val)))
