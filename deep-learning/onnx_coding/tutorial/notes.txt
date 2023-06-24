@@ -1,0 +1,18 @@
+These are my notes for the exporting of a simple model to ONNX.
+
+
+The first thing I need to do is install:
+1. ONNX
+    - https://github.com/onnx/onnx
+    - install:
+        $ pip install onnx
+    - NOTE: Installation on Windows assumes you have Visual Studio!
+2. ONNX Runtime
+    - https://github.com/microsoft/onnxruntime
+    - install, in the current virtual environment:
+        $ pip install onnxruntime
+        $ pip install onnxruntime-gpu
+        $ pip install onnxruntime-training
+    - It seems that calling onnxtime.InferenceSession does not
+    work when I only have the -gpu version, installing the CPU
+    library seems to fix this.
