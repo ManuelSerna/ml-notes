@@ -11,10 +11,8 @@ def get_default_device():
     :return: NA
     '''
     if torch.cuda.is_available():
-        print('GPU available.')
         return torch.device('cuda')
     else:
-        print('Using CPU.')
         return torch.device('cpu')
 
 

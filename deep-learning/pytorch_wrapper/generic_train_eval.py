@@ -1,28 +1,39 @@
-# Helper Functions for training
+# Helper Functions for training a generic Pytorch model
 # for Pytorch projects
-# ALIAS:
-
-import time
-import torch
-
-import torch.nn as nn
 
 import pytorch_wrapper.computations as comps
 import pytorch_wrapper.gpu_funcs as gpu_funcs
-import pytorch_wrapper.losses as losses
+import torch.nn.functional as F
+
+import time
+import torch
+import torch.nn as nn
 
 
-#===========================================
-# Functions for simple Sequential models
-#===========================================
+def predict(x=None, model=None):
+    ''' Use model to make prediction on input
+    NOTE: prediction is highest value in prediction vector
+
+    :param x: batch of images in tensor
+    :param model: model object that inherits from torch.nn.Module
+    :return: prediction label
+    '''
+    device = gpu_funcs.get_default_device()
+    x = gpu_funcs.move_to_device(data=x, device=device)
+    predict_vector = model(x)
+    best_pred_values, best_pred_indices = torch.max(predict_vector, dim=1)
+    return best_pred_indices[0].item()
+
+
 @torch.no_grad()
-def evaluate_sequential(model=None, val_loader=None):
+def generic_evaluate(model=None, val_loader=None, loss_func=None):
     ''' Without modifying gradients, evaluate validation set of images to get average loss and accuracy
     (over all batches in DataLoader object)
-    NOTE:
+    NOTE: Uses cross-entropy loss
 
     :param model: torch.nn.Module model
     :param val_loader: validation data loader (type DataLoader)
+    :param loss_func: Pytorch loss function
     :return: averaged validation accuracies and averaged validation losses in a dictionary in the form
         {
             'val_acc': number
@@ -35,11 +46,11 @@ def evaluate_sequential(model=None, val_loader=None):
     val_scores = {}
 
     for batch in val_loader:
-        val_loss = losses.compute_batch_ce_loss(model=model, batch=batch)
         inputs, labels = batch
         out = model(inputs)
-        val_accuracy = comps.get_accuracy(out, labels)  # compute accuracy
 
+        val_loss = loss_func(input=out, target=labels)
+        val_accuracy = comps.get_accuracy(out, labels)
         val_losses.append(val_loss)
         val_accs.append(val_accuracy)
 
@@ -49,7 +60,7 @@ def evaluate_sequential(model=None, val_loader=None):
     return val_scores
 
 
-def train_sequential_model(
+def generic_train(
         model=None,
         epochs=10,
         lr=0.01,
@@ -58,8 +69,9 @@ def train_sequential_model(
         train_loader=None,
         val_loader=None,
         grad_clip=None,
+        loss_func=None,
         opt_func=torch.optim.SGD):
-    ''' Train basic sequential model (e.g., MLP, CNN for MNIST, etc.)
+    ''' Train basic model (e.g., MLP, CNN for MNIST, etc.)
 
     :param model: model object that inherits from torch.nn.Module
     :param epochs: (int) number of epochs to train for
@@ -69,7 +81,9 @@ def train_sequential_model(
     :param train_loader: training DataLoader object
     :param val_loader: validation DataLoader object
     :param grad_clip: (number) limit how much gradients can change by this much (default = None)
+    :param loss_func: Pytorch loss function
     :param opt_func: optimization function (from torch.optim)
+
     :return: list of dictionaries, each element having the form for index/epoch i
         {
             'train_loss': number
@@ -105,7 +119,10 @@ def train_sequential_model(
 
         # Train on batches
         for batch in train_loader:
-            loss = losses.compute_batch_ce_loss(model=model, batch=batch)
+            inputs, labels = batch
+            out = model(inputs)  # get predictions
+            loss = F.cross_entropy(input=out, target=labels)
+
             train_losses.append(loss) # add loss of current batch
             loss.backward() # backpropagate on loss
             optimizer.step() # perform single optimization step
@@ -124,7 +141,7 @@ def train_sequential_model(
 
         # Evaluate model after training for one additional epoch
         avg_train_loss = comps.avg_list_tensors(train_losses)
-        val_scores = evaluate_sequential(model=model, val_loader=val_loader) # get validation accuracy and loss
+        val_scores = generic_evaluate(model=model, val_loader=val_loader, loss_func=loss_func) # get validation accuracy and loss
 
         # Finally, add losses and validation accuracy of current epoch to history list
         epoch_scores = {
@@ -147,18 +164,3 @@ def train_sequential_model(
     print('Total training time: {:.3f} min'.format(end/60))
 
     return history
-
-
-def predict(x=None, model=None):
-    ''' Use model to make prediction on input
-    NOTE: prediction is highest value in prediction vector
-
-    :param x: batch of images in tensor
-    :param model: model object that inherits from torch.nn.Module
-    :return: prediction label
-    '''
-    device = gpu_funcs.get_default_device()
-    x = gpu_funcs.move_to_device(data=x, device=device)
-    predict_vector = model(x)
-    best_pred_values, best_pred_indices = torch.max(predict_vector, dim=1)
-    return best_pred_indices[0].item()

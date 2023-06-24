@@ -11,7 +11,7 @@ def show_tensor_image(img=None):
     :param img: image as a tensor
     :return: NA
     '''
-    plt.imshow(img.permute(1, 2, 0))  # switch axes to show img properly
+    plt.imshow(img.permute(1, 2, 0)) # switch axes to show img properly
 
 
 def show_all_batch_imgs8x8(dl=None):
@@ -28,6 +28,43 @@ def show_all_batch_imgs8x8(dl=None):
         break
 
     plt.show()
+
+
+def plot_pred_img(img=None, ground_truth=None, predicted=None, savedir=''):
+    ''' Plot data sample where corresponding output is an image
+
+    :param img: (np.array) original image passed as input to model
+    :param ground_truth: (np.array) ground-truth image (e.g., segmentation mask)
+    :param predicted: (np.array) predicted image (e.g., segmentation mask)
+    :param savedir: (string) directory to store figure in
+    :return: NA
+    '''
+    fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(10, 4))
+    ax = axes.ravel()
+
+    ax[0].imshow(img, vmin=0, vmax=1, interpolation='bicubic')
+    ax[0].set_title('Original Image')
+    ax[0].set_xticks([])
+    ax[0].set_yticks([])
+
+    ax[1].imshow(ground_truth, vmin=0, vmax=1, interpolation='nearest')
+    ax[1].set_title('Ground Truth')
+    ax[1].set_xticks([])
+    ax[1].set_yticks([])
+
+    ax[2].imshow(predicted, vmin=0, vmax=1, interpolation='nearest')
+    ax[2].set_title('Predicted')
+    ax[2].set_xticks([])
+    ax[2].set_yticks([])
+
+    plt.tight_layout()
+
+    if savedir != '':
+        fig.savefig(savedir, dpi=300)
+    else:
+        plt.show()
+
+    plt.close()
 
 
 def plot_accuracy(history=None):

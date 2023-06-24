@@ -1,0 +1,21 @@
+# Directory Names #
+###################
+*/data # stores data files I do not want to push (large size)
+
+# Jupyter Notebook #
+####################
+*.ipynb_checkpoints
+
+# Packages #
+############
+*.tgz
+*.tar
+*.zip
+
+# PyCharm #
+###########
+*.idea
+
+# Python #
+##########
+*__pycache__
