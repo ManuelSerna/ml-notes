@@ -22,7 +22,7 @@ class FullyConnected():
     '''
     #=============================
     def __init__(self, f=''):
-        # Forward computations
+        # Forward computations; these will be stored for backwards computations
         self.x = None # layer input signal
         self.z = None # weighted sum (forward)
         self.a = None # activation (forward)
@@ -51,7 +51,7 @@ class FullyConnected():
     Return: NA
     '''
     #=============================
-    def forward(self, x, W, b):
+    def forward(self, x, W, b) -> None:
         self.x = x
         self.z = (W @ x) + b
         self.a = self.f.forward(self.z)
@@ -69,7 +69,7 @@ class FullyConnected():
         delta:      delta for current layer l
     '''
     #=============================
-    def backward(self, next_delta, W, b):
+    def backward(self, next_delta, W, b) -> tuple:
         delta = self.f.backward(self.z) * (W.T @ next_delta)
         dWl = delta @ self.x.T
         dbl = delta

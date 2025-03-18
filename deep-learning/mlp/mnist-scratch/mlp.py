@@ -43,7 +43,7 @@ class MLP():
         layers: list of fully-connected layers (which are objects)
     '''
     #=============================
-    def forward(self, x):
+    def forward(self, x) -> list:
         layers = [] # hold layer objects (and store intermediate computations)
         
         # Loop through all layers (weights) except the output layer
@@ -67,7 +67,7 @@ class MLP():
     # Input: array A
     # Return: index of max element in A
     #=============================
-    def get_max_index(self, A):
+    def get_max_index(self, A) -> int:
         max_prob = -1.0
         max_index = -1
         
@@ -87,12 +87,14 @@ class MLP():
         label: class 
     '''
     #=============================
-    def predict(self, x):
+    def predict(self, x) -> tuple:
         x = x.reshape((len(x)**2, 1)) # reshape 2d data to be (w^2,1)
         
         layers = self.forward(x)
         label = self.get_max_index(layers[-1].a)
-        return label
+        probabilities = layers[-1].a.flatten()
+
+        return label, probabilities
     
     #=============================
     # Evaluate accuracy of model
@@ -103,20 +105,31 @@ class MLP():
     Return: NA
     '''
     #=============================
-    def evaluate(self, X, Y):
+    def evaluate(self, X, Y) -> str:
         tot_correct = 0
         
         # Iterate over all test samples
         n = len(Y)
+        true_labels = [] # list of all samples' class labels--one-hot
+        predictions = [] # list of all samples' predictions, probability vectors
+
         for i in range(n):
-            prediction = self.predict(X[i])
+            prediction, probabilities = self.predict(X[i])
+
             y = Y[i].reshape((len(Y[i]), 1))
             true_label = self.get_max_index(y)
             
             if prediction == true_label:
                 tot_correct += 1
+
+            true_labels.append(Y[i])
+            predictions.append(probabilities)
         
-        print(' Accuracy: {}/{} = {}'.format(tot_correct, n, float(tot_correct/n * 100.0)))
+        accuracy = float(tot_correct/n * 100.0)
+        predictions = np.array(predictions)
+        avg_loss = losses.cat_cross_entropy(y=Y, yhat=predictions) / Y.shape[0] # average by number of samples
+
+        return f'accuracy: {tot_correct}/{n} = {accuracy:.4f}; loss = {avg_loss}'
     
     #=============================
     # Backpropagate
@@ -128,7 +141,7 @@ class MLP():
         dW, db: gradients of parameters
     '''
     #=============================
-    def backprop(self, x, y):
+    def backprop(self, x, y) -> tuple:
         # Init new gradients (exact same setup as self.W and self.b)
         dW = []
         db = []
@@ -169,7 +182,7 @@ class MLP():
     Return: NA
     '''
     #=============================
-    def sgd_update(self, x, y, lr):
+    def sgd_update(self, x, y, lr) -> None:
         x = x.reshape((len(x)**2, 1)) # reshape 2d data to be (w^2,1)
         y = y.reshape((len(y), 1))
         #print(x.shape)
@@ -195,7 +208,7 @@ class MLP():
     Return: NA
     '''
     #=============================
-    def train(self, x_train=None, y_train=None, x_val=None, y_val=None, epochs=1, lr=0.001):
+    def train(self, x_train=None, y_train=None, x_val=None, y_val=None, epochs=1, lr=0.001) -> None:
         print('Training over {} epochs. Learning rate={}.'.format(epochs, lr))
         print()
         T = len(y_train)
@@ -210,6 +223,11 @@ class MLP():
                 
                 #if t % 10000 and t != 0:
                 if t%10000 == 0:
-                    self.evaluate(x_val, y_val)
+                    train_msg = self.evaluate(x_train, y_train)
+                    print(f"  Train:      {train_msg}")
+                    
+                    test_msg = self.evaluate(x_val, y_val)
+                    print(f"  Evaluation: {test_msg}")
+
         
         self.evaluate(x_val, y_val)
